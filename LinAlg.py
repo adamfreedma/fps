@@ -72,19 +72,30 @@ def line_world_intersection(pos, vector):
     Returns:
         float: distance from target
     """
-    # TODO: change to return the target object
     # [i] pos and vector in gl cs
     min_distance = np.Inf
+    object_hit = None
     for obj in objects.players:
         # [i] obj in object cs
         for face in obj.faces:
             # [i] plane converted to gl cs
             plane = [convert_object_to_gl_cs(obj.verticies[index]) for index in face]
             intersection = line_plane_distance(plane, pos ,vector)
-            if intersection > 0:
-                min_distance = min(min_distance, intersection)
+            if intersection > 0 and intersection < min_distance:
+                min_distance = intersection
+                object_hit = obj
+
+    for obj in objects.world:
+        # [i] obj in object cs
+        for face in obj.faces:
+            # [i] plane converted to gl cs
+            plane = [convert_object_to_gl_cs(obj.verticies[index]) for index in face]
+            intersection = line_plane_distance(plane, pos ,vector)
+            if intersection > 0 and intersection < min_distance:
+                min_distance = intersection
+                object_hit = obj
     
-    return min_distance
+    return object_hit
 
 
 def line_plane_distance(plane, pos, vector):

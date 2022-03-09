@@ -54,7 +54,7 @@ speed = [0, 0, 0]
 # global vars
 GRAVITY = 5
 PLAYER_RADIUS = 0.2
-SENSETIVITY = 1
+SENSETIVITY = 0.1
 
 pygame.mouse.set_pos(screen_center)
 pygame.mouse.set_visible(False)
@@ -76,9 +76,10 @@ while run:
         if event.type == pygame.MOUSEBUTTONDOWN:
             # TODO: detect player hit
             # [i] both in gl cs
-            intersection = line_world_intersection(player1.position, player1.looking_vector())
-            if 0 < intersection < inf:
-                objects.players = []
+            object_hit = line_world_intersection(player1.position, player1.looking_vector())
+            if object_hit:
+                if object_hit in objects.players:
+                    objects.players.remove(object_hit)
             pass
 
         if not paused:
@@ -130,7 +131,7 @@ while run:
             player1.move(speed)
 
         # ! delete later
-        objects.world[0].move([0.1, 0 ,0])
+        # objects.world[0].move([0.1, 0 ,0])
 
         # moves the matrix
         glMultMatrixf(viewMatrix)
