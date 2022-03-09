@@ -1,4 +1,5 @@
-# fps
-first person shooter
+# First person shooter
 
-cyber project 2022.
+Junior cyber project (2022).
+
+multiplayer game in python using sockets, pygame and opengl.
