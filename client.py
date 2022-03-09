@@ -38,11 +38,11 @@ gluPerspective(45, (display[0] / display[1]), 0.1, 150.0)
 # TODO: change camera and player initialazing to using server given position
 glMatrixMode(GL_MODELVIEW)
 # [i] object cs
-gluLookAt(0, -8, 0, 0, 0, 0, 0, 0, 1)
+gluLookAt(0, -1e-10, 0, 0, 0, 0, 0, 0, 1)
 viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 glLoadIdentity()
 # [i] setting up player - gl cs
-player1 = Player("black", [8, 0, 0], yaw=90)
+player1 = Player("black", [1e-10, 0, 0], yaw=90)
 # init mouse movement and center mouse on screen
 screen_center = screen.get_size()[0] // 2, screen.get_size()[1] // 2 
 mouse_change = [0, 0]
@@ -58,15 +58,31 @@ speed = [0, 0, 0]
 PLAYER_RADIUS = 0.2
 SENSETIVITY = 0.1
 GRAVITY = 5
-
+# initialzing mouse settings
 pygame.mouse.set_pos(screen_center)
 pygame.mouse.set_visible(False)
 
+# *moving to the starting position given by the server*
+# init the view matrix
+glPushMatrix()
+glLoadIdentity()
+# getting the starting position
 init_player = connection.connect()
+# calculating needed movement
 starting_movement = np.subtract(init_player.position, player1.position)
+# moving the view
 glTranslatef(*starting_movement)
+# moving the player
 starting_movement = rotate_yaw(starting_movement, player1.yaw)
 player1.move(starting_movement)
+# moves the matrix
+glMultMatrixf(viewMatrix)
+# store the new matrixc
+viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
+
+# apply view matrix
+glPopMatrix()
+glMultMatrixf(viewMatrix)
 
 while run:
     # getting actions
