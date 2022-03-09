@@ -1,6 +1,8 @@
 import socket
 import select
 
+from Player import Player
+
 
 def handle_disconnected_client(client_socket):
     if client_socket in open_client_sockets:
@@ -59,5 +61,9 @@ while True:
                     for target_socket in wlist:
                         if target_socket is not curr_socket:
                             message_to_send.append((target_socket, data))
+        
+        for curr_socket in wlist:
+            message_to_send.append((curr_socket, "P" + Player("red", [10,0,0]).serialize()))
+
 
     send_waiting_messages(wlist, message_to_send)
