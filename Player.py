@@ -48,18 +48,18 @@ class Player:
 def deserialize_player(serialized):
     length = 10
     try:
-        return Player(serialized[5*length:], serialized[:length], serialized[length:2*length], serialized[2*length:3*length]
+        return Player(serialized[5*length:], [float(serialized[:length]), float(serialized[length:2*length]), float(serialized[2*length:3*length])]
                   , serialized[3*length:4*length], serialized[4*length:5*length])
     except Exception as e:
-        print("invlaid input!")
+        print("invlaid input!, player")
 
 def deserialize_new_player(serialized):
     try:
         length = 10
-        return Player(serialized[3*length:], serialized[:length], serialized[length:2*length], serialized[2*length:3*length]
-                    , 0, 0)
+        return Player(serialized[3*length:], [float(serialized[:length]), float(serialized[length:2*length]), float(serialized[2*length:3*length])])
     except Exception as e:
-        print("invalid input!")
+        print(e)
+        print("invalid input!, new player")
 
 def serialize_var(var, length):
     return str(var).zfill(length)[:length]
