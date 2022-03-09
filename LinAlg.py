@@ -1,6 +1,4 @@
 from math import *
-from turtle import distance
-from xml.sax.handler import property_interning_dict
 import numpy as np
 import objects
 
@@ -75,7 +73,7 @@ def line_world_intersection(pos, vector):
     # [i] pos and vector in gl cs
     min_distance = np.Inf
     object_hit = None
-    for obj in objects.players:
+    for obj in objects.players.values():
         # [i] obj in object cs
         for face in obj.faces:
             # [i] plane converted to gl cs

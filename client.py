@@ -85,6 +85,10 @@ glPopMatrix()
 glMultMatrixf(viewMatrix)
 
 while run:
+    # *updating players*
+    update_color, update_player = connection.recv_updates()
+    objects.create_player(update_color, update_player.position)
+
     # getting actions
     for event in pygame.event.get():
         # checking for quits/ pauses
@@ -97,14 +101,12 @@ while run:
                 paused = not paused
                 pygame.mouse.set_pos(screen_center)
             if event.key == pygame.K_c:
-                objects.create_player([randint(-10, 10), randint(-10, 10),0])
+                objects.create_player("green", [randint(-10, 10), randint(-10, 10),0])
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # TODO: detect player hit
             # [i] both in gl cs
             object_hit = line_world_intersection(player1.position, player1.looking_vector())
             if object_hit:
-                if object_hit in objects.players:
-                    objects.players.remove(object_hit)
+                objects.players = {key:val for key, val in objects.players.items() if val != object_hit}
             pass
 
         if not paused:

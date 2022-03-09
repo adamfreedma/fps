@@ -42,7 +42,7 @@ class Player:
 
     def serialize(self):
         return serialize_var(self.position[0], 10) + serialize_var(self.position[1], 10) + serialize_var(self.position[2], 10)\
-               + serialize_var(self.yaw, 10) + serialize_var(self.pitch, 10)
+               + serialize_var(self.yaw, 10) + serialize_var(self.pitch, 10) + self.color
 
 
 def deserialize_player(serialized):
@@ -51,6 +51,7 @@ def deserialize_player(serialized):
         return Player(serialized[5*length:], [float(serialized[:length]), float(serialized[length:2*length]), float(serialized[2*length:3*length])]
                   , serialized[3*length:4*length], serialized[4*length:5*length])
     except Exception as e:
+        print(e)
         print("invlaid input!, player")
 
 def deserialize_new_player(serialized):

@@ -1,6 +1,5 @@
 from copy import copy
 import numpy as np
-from pygame import init
 
 
 class Object:
@@ -16,20 +15,7 @@ class Object:
         self.verticies = [np.add(verticie, vector) for verticie in self.verticies]
 #  [i] object cs => (f,l,u)
 #  [i] gl cs => (r,u,b)
-colors = [
-    [1, 1, 1],
-    [1, 0, 0],
-    [1, 0, 1],
-    [0, 1, 1],
-    [1, 1, 1],
-    [1, 1, 0],
-    [1, 1, 1],
-    [1, 0, 0],
-    [1, 0, 1],
-    [0, 1, 1],
-    [1, 1, 1],
-    [1, 1, 0],
-]
+colors = {"black" : [0,0,0], "green" : [0,1,0], "red" : [1,0,0], "blue" : [0,0,1]}
 # [i] object cs
 cube_verticies_vector3 = [
     [1.0000, 1.0000, 1.0000],
@@ -133,10 +119,10 @@ player_template_faces_vector4 = [
     [5, 4, 0, 1],
     ]
 # [i] object cs
-players =[]
+players = {}
 # [i] object cs
 world = [Object(cube_faces_vector4, cube_verticies_vector3, cube_edges_vector2), Object(floor_faces_vector4, floor_verticies_vector3, floor_edges_vector2, [0.3,0.3,0.3])]
 
-def create_player(position):
+def create_player(color, position):
     # [i] position - object cs
-    players.append(Object(copy(player_template_faces_vector4), [np.add(vertice, position) for vertice in player_template_verticies_vector3], copy(player_template_edges_vector2), [0,1,0]))
+    players[color] = (Object(copy(player_template_faces_vector4), [np.add(vertice, position) for vertice in player_template_verticies_vector3], copy(player_template_edges_vector2), colors[color]))

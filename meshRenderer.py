@@ -8,7 +8,7 @@ import objects
 
 def mesh_all(looking):
     mesh(objects.world, looking)
-    mesh(objects.players, looking)
+    mesh(objects.players.values(), looking)
 
 
 def mesh(object_list, looking):
