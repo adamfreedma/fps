@@ -45,11 +45,21 @@ class Player:
                + serialize_var(self.yaw, 10) + serialize_var(self.pitch, 10)
 
 
-def deserialize_new_player(serialized):
+def deserialize_player(serialized):
     length = 10
-    return Player(serialized[5*length:], serialized[:length], serialized[length:2*length], serialized[2*length:3*length]
+    try:
+        return Player(serialized[5*length:], serialized[:length], serialized[length:2*length], serialized[2*length:3*length]
                   , serialized[3*length:4*length], serialized[4*length:5*length])
+    except Exception as e:
+        print("invlaid input!")
 
+def deserialize_new_player(serialized):
+    try:
+        length = 10
+        return Player(serialized[3*length:], serialized[:length], serialized[length:2*length], serialized[2*length:3*length]
+                    , 0, 0)
+    except Exception as e:
+        print("invalid input!")
 
 def serialize_var(var, length):
     return str(var).zfill(length)[:length]
