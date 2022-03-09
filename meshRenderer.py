@@ -12,6 +12,7 @@ def mesh_all(looking):
 
 
 def mesh(object_list, looking):
+    BRIGHTNESS = 2
     glBegin(GL_QUADS)
     for obj in object_list:
         for face in obj.faces:
@@ -19,7 +20,10 @@ def mesh(object_list, looking):
             color = obj.color
             face_norm = convert_object_to_gl_cs(plane_normal([obj.verticies[index] for index in face]))
             # changing the brightness by the projection of the planes norm
-            color = [np.linalg.norm(np.cross(face_norm, looking)) * c for c in color]
+            brightness = 1 - (np.linalg.norm(np.cross(face_norm, looking)) / BRIGHTNESS)
+            if abs(face_norm[1]) == 1:
+                brightness = 1
+            color = [brightness * c for c in color]
             for vertex in face:
                 glColor3fv(color)
                 glVertex3fv(obj.verticies[vertex])
@@ -27,8 +31,8 @@ def mesh(object_list, looking):
 
 
 def draw_line(p1, p2, color):
-    glBegin(GL_LINES);
+    glBegin(GL_LINES)
     glColor3fv(color)
-    glVertex2fv(p1);
-    glVertex2fv(p2);
-    glEnd();
+    glVertex2fv(p1)
+    glVertex2fv(p2)
+    glEnd()
