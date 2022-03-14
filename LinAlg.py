@@ -135,6 +135,18 @@ def convert_object_to_gl_cs(vector):
     return [-vector[1],vector[2],-vector[0]]
 
 
+def convert_gl_to_object_cs(vector):
+    """converts a list in gl cs to object cs
+
+    Args:
+        vector (list of 3 - gl cs): input vector in gl cs
+
+    Returns:
+        list of 3 - object cs: list in object cs
+    """
+    return [-vector[2],-vector[0],vector[1]]
+
+
 def point_in_plane_section(plane, point):
     """checks if a point is within a rectangle region of a plane
 
@@ -201,10 +213,14 @@ def vector_from_yaw_pitch(yaw, pitch, size=1, is_degrees=True):
 
 
 def main():
-    plane = [[-1,1,0], [1,1,0], [1,-1,0], [-1,-1,0]]
-    pos = [-.9, .9, 1]
-    vector = [0, 0.09, -1]
-    print("line plane intersection:", line_plane_distance(plane, pos, vector))
+    # plane = [[-1,1,0], [1,1,0], [1,-1,0], [-1,-1,0]]
+    # pos = [-.9, .9, 1]
+    # vector = [0, 0.09, -1]
+    # print("line plane intersection:", line_plane_distance(plane, pos, vector))
+    vector = [1,2,3]
+    vector = convert_gl_to_object_cs(vector)
+    vector = convert_object_to_gl_cs(vector)
+    print(vector)
 
 
 if __name__ == '__main__':
