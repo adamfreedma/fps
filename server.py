@@ -28,7 +28,9 @@ def send_waiting_messages(wlist, messages):
 server_socket = socket.socket()
 server_socket.bind(('0.0.0.0', 1729))
 server_socket.listen(5)
-
+c = "black"
+color_list = ["black", "green", "red", "blue"]
+player_list = {}
 # clients
 open_client_sockets = {}
 message_to_send = []
@@ -37,6 +39,7 @@ while True:
     rlist, wlist, xlist = select.select([server_socket] + list(open_client_sockets.keys()), [server_socket] + list(open_client_sockets.keys()), [])
 
     for curr_socket in rlist:
+        # checking for new connections
         if curr_socket is server_socket:
             (new_client, address) = server_socket.accept()
             print(f'{address[0]}, connected to the server')
@@ -44,26 +47,30 @@ while True:
         else:
             data = ""
             try:
+                # getting input data
                 data = curr_socket.recv(1024).decode()
             except Exception as e:
                 print(str(e))
                 handle_disconnected_client(curr_socket)
-
             if data == "":
                 handle_disconnected_client(curr_socket)
             else:
                 print(data)
                 if data == "J":
                     # TODO: change to actual values
-                    message = "S" + "2".zfill(30) + "black"
+                    message = "S" + "2".zfill(30) + c
+                    c = "green"
                     message_to_send.append((curr_socket, message))
-                else:
-                    for target_socket in wlist:
-                        if target_socket is not curr_socket:
-                            message_to_send.append((target_socket, data))
-        
-        for curr_socket in wlist:
-            message_to_send.append((curr_socket, "P" + Player("red", [10,0,0]).serialize()))
-
+                elif data[0] == "P":
+                    if len(data) > 51:
+                        color = data[51:]
+                        value = data[1:51]
+                        player_list[color] = value
+                        message = ""
+                        for key, val in player_list.items():
+                            if key != color:
+                                message += key + val
+                        message_to_send.append((curr_socket, message))
+ 
 
     send_waiting_messages(wlist, message_to_send)
