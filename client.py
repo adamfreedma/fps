@@ -75,6 +75,7 @@ glTranslatef(*starting_movement)
 # moving the player
 starting_movement = rotate_yaw(starting_movement, player1.yaw)
 player1.move(starting_movement)
+player1.color = init_player.color
 # moves the matrix
 glMultMatrixf(viewMatrix)
 # store the new matrixc
@@ -86,8 +87,8 @@ glMultMatrixf(viewMatrix)
 
 while run:
     # *updating players*
+    # [i] update data in gl cs
     update_data = connection.update_data(player1)
-    print(update_data)
     if update_data:
         for c, player in update_data.items():
             objects.create_player(c, player.position)
@@ -104,7 +105,7 @@ while run:
                 paused = not paused
                 pygame.mouse.set_pos(screen_center)
             if event.key == pygame.K_c:
-                objects.create_player("green", [randint(-10, 10), randint(-10, 10),0])
+                objects.create_player("green", [randint(-10, 10), randint(-10, 10),0], False)
         if event.type == pygame.MOUSEBUTTONDOWN:
             # [i] both in gl cs
             object_hit = line_world_intersection(player1.position, player1.looking_vector())

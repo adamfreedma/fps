@@ -1,5 +1,6 @@
 from copy import copy
 import numpy as np
+import LinAlg
 
 
 class Object:
@@ -123,6 +124,9 @@ players = {}
 # [i] object cs
 world = [Object(cube_faces_vector4, cube_verticies_vector3, cube_edges_vector2), Object(floor_faces_vector4, floor_verticies_vector3, floor_edges_vector2, [0.3,0.3,0.3])]
 
-def create_player(color, position):
+def create_player(color, position, is_gl_cs=True):
+    if is_gl_cs:
+        position = LinAlg.convert_gl_to_object_cs(position)
+
     # [i] position - object cs
     players[color] = (Object(copy(player_template_faces_vector4), [np.add(vertice, position) for vertice in player_template_verticies_vector3], copy(player_template_edges_vector2), colors[color]))

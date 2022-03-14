@@ -55,7 +55,6 @@ while True:
             if data == "":
                 handle_disconnected_client(curr_socket)
             else:
-                print(data)
                 if data == "J":
                     # TODO: change to actual values
                     message = "S" + "2".zfill(30) + c
@@ -64,12 +63,13 @@ while True:
                 elif data[0] == "P":
                     if len(data) > 51:
                         color = data[51:]
+                        # [i] position in gl cs
                         value = data[1:51]
                         player_list[color] = value
                         message = ""
                         for key, val in player_list.items():
                             if key != color:
-                                message += key + val
+                                message += val + key + "P"
                         message_to_send.append((curr_socket, message))
  
 
