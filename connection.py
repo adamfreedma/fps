@@ -15,33 +15,32 @@ class Connection:
 
     def connect(self):
         try:
+            # send J (asking for connection)
             self.client_socket.send("J".encode())
+            # getting initial position
             init_data = self.client_socket.recv(1024).decode()
+            # rasing a socket error if its invlaid
             if len(init_data) < 1 or init_data[0] != "S":
                 raise socket.error
             return deserialize_new_player(init_data[1:])
         except socket.error:
             exit("server offline, connect")
     
-    def send_movement(self, player):
+
+    def update_data(self, player):
         try:
+            # sending our updated data
             self.client_socket.send(("P" + player.serialize()).encode())
-        except socket.error:
-            exit("server offline, send movement")
-
-
-    def recv_updates(self):
-        try:
+            # getting other players updated data
             update_data = self.client_socket.recv(1024).decode()
-            print(update_data)
-            if update_data[0] == "H":
-                return update_data[0:], None
-            elif update_data[0] == "P":
-                p = deserialize_player(update_data[1:])
-                return p.color, p
-            else:
-                raise socket.error
+            # turning it into a list of players
+            update_list = {}
+            for player in update_data.split("P"):
+                p = deserialize_player(player)
+                if p:
+                    update_list[p.color] = p
+            return update_list
         except socket.error:
-            return "red", Player("red", [10,0,0])
-            # exit("server offline, recv updates")
+            return None
+            # exit("server offline, updates")
 

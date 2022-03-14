@@ -86,8 +86,11 @@ glMultMatrixf(viewMatrix)
 
 while run:
     # *updating players*
-    update_color, update_player = connection.recv_updates()
-    objects.create_player(update_color, update_player.position)
+    update_data = connection.update_data(player1)
+    print(update_data)
+    if update_data:
+        for c, player in update_data.items():
+            objects.create_player(c, player.position)
 
     # getting actions
     for event in pygame.event.get():
