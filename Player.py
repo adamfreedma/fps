@@ -49,7 +49,7 @@ def deserialize_player(serialized):
     length = 10
     try:
         return Player(serialized[5*length:], [float(serialized[:length]), float(serialized[length:2*length]), float(serialized[2*length:3*length])]
-                  , serialized[3*length:4*length], serialized[4*length:5*length])
+                  , float(serialized[3*length:4*length]), float(serialized[4*length:5*length]))
     except Exception as e:
         print(e)
         print("invlaid input!, player")
