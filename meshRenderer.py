@@ -18,7 +18,7 @@ def mesh(object_list, looking):
         for face in obj.faces:
             # ? does open gl lighting implement this
             color = obj.color
-            face_norm = convert_object_to_gl_cs(plane_normal([obj.verticies[index] for index in face]))
+            face_norm = convert_object_to_gl_cs(plane_normal([obj.vertices[index] for index in face]))
             # changing the brightness by the projection of the planes norm
             brightness = 1 - (np.linalg.norm(np.cross(face_norm, looking)) / BRIGHTNESS)
             if abs(face_norm[1]) == 1:
@@ -26,7 +26,7 @@ def mesh(object_list, looking):
             color = [brightness * c for c in color]
             for vertex in face:
                 glColor3fv(color)
-                glVertex3fv(obj.verticies[vertex])
+                glVertex3fv(obj.vertices[vertex])
     glEnd()
 
 

@@ -105,9 +105,10 @@ while run:
                 paused = not paused
                 pygame.mouse.set_pos(screen_center)
             if event.key == pygame.K_c:
-                objects.create_player("green", [randint(-10, 10), randint(-10, 10),0], False)
+                objects.create_player("green", [randint(-10, 10), randint(-10, 10), 0], False)
         if event.type == pygame.MOUSEBUTTONDOWN:
             # [i] both in gl cs
+            connection.send_shot(player1.color)
             object_hit = line_world_intersection(player1.position, player1.looking_vector())
             if object_hit:
                 objects.players = {key:val for key, val in objects.players.items() if val != object_hit}

@@ -1,9 +1,10 @@
 import socket
 from Player import Player, deserialize_new_player, deserialize_player
 
+
 class Connection:
     def __init__(self, server_ip, server_port):
-        self.SERVER_IP =  server_ip
+        self.SERVER_IP = server_ip
         self.SERVER_PORT = server_port
         # connecting to the server
         self.client_socket = socket.socket()
@@ -25,7 +26,9 @@ class Connection:
             return deserialize_new_player(init_data[1:])
         except socket.error:
             exit("server offline, connect")
-    
+
+    def send_shot(self, color):
+        self.client_socket.send(("G" + color).encode())
 
     def update_data(self, player):
         try:

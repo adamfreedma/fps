@@ -17,7 +17,7 @@ def world_collision_detection(new_pos):
 
 
 def AABB_collison(new_pos, object):
-    object = np.array([convert_object_to_gl_cs(vertice) for vertice in object.verticies])
+    object = np.array([convert_object_to_gl_cs(vertex) for vertex in object.vertices])
     box = [[x - PLAYER_RADIUS for x in object.min(0)], [x + PLAYER_RADIUS for x in object.max(0)]]
     return box[0][0] < new_pos[0] < box[1][0] and box[0][1] < new_pos[1] < box[1][1] and box[0][2] < new_pos[2] < box[1][2]
 
@@ -59,13 +59,12 @@ def normalize(vector):
     vector = [x / vector_norm for x in vector]
     return vector
 
-
 def line_world_intersection(pos, vector):
     """checks the intersection of a bullet with the world
 
     Args:
-        pos (list of 3 - gl cs): _description_
-        vector (list of 3 - gl cs): _description_
+        pos (list of 3 - gl cs): starting position of the shooter
+        vector (list of 3 - gl cs): bullet direction vector
 
     Returns:
         float: distance from target
@@ -77,7 +76,7 @@ def line_world_intersection(pos, vector):
         # [i] obj in object cs
         for face in obj.faces:
             # [i] plane converted to gl cs
-            plane = [convert_object_to_gl_cs(obj.verticies[index]) for index in face]
+            plane = [convert_object_to_gl_cs(obj.vertices[index]) for index in face]
             intersection = line_plane_distance(plane, pos ,vector)
             if intersection > 0 and intersection < min_distance:
                 min_distance = intersection
@@ -87,7 +86,7 @@ def line_world_intersection(pos, vector):
         # [i] obj in object cs
         for face in obj.faces:
             # [i] plane converted to gl cs
-            plane = [convert_object_to_gl_cs(obj.verticies[index]) for index in face]
+            plane = [convert_object_to_gl_cs(obj.vertices[index]) for index in face]
             intersection = line_plane_distance(plane, pos ,vector)
             if intersection > 0 and intersection < min_distance:
                 min_distance = intersection
