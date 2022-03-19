@@ -131,13 +131,16 @@ world = [Object(cube_faces_vector4, cube_vertices_vector3, cube_edges_vector2),
 
 
 def create_player(color, position, is_gl_cs=True):
-    if is_gl_cs:
-        position = LinAlg.convert_gl_to_object_cs(position)
+    try:
+        if is_gl_cs:
+            position = LinAlg.convert_gl_to_object_cs(position)
 
-    # [i] position - object cs
-    players[color] = (Object(copy(player_template_faces_vector4),
-                             [np.add(vertex, position) for vertex in player_template_vertices_vector3],
-                             copy(player_template_edges_vector2), colors[color]))
+        # [i] position - object cs
+        players[color] = (Object(copy(player_template_faces_vector4),
+                                [np.add(vertex, position) for vertex in player_template_vertices_vector3],
+                                copy(player_template_edges_vector2), colors[color]))
+    except Exception as e:
+        print(color, position, "create player")
 
 def line_world_intersection(pos, vector, color):
     """checks the intersection of a bullet with the world
@@ -162,5 +165,7 @@ def line_world_intersection(pos, vector, color):
                 if intersection > 0 and intersection < min_distance:
                     min_distance = intersection
                     object_hit = obj
-    print(min_distance)
-    return np.where(object_hit == colors, colors)[0]
+    object_color = None
+    if object_hit:
+        object_color = [key for key, val in colors.items() if  val == object_hit.color][0]
+    return object_color
