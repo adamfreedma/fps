@@ -3,6 +3,7 @@ import select
 import server_objects
 import Player
 from random import randint
+from time import time
 
 def handle_disconnected_client(client_socket):
     if client_socket in open_client_sockets:
@@ -30,9 +31,13 @@ server_socket.listen(5)
 c = "red"
 color_list = ["black", "green", "red", "blue"]
 player_list = {}
+# saving death times to stop killing respawning people
+death_times = {}
 # clients
 open_client_sockets = {}
 message_to_send = []
+
+RESPAWN_TIME = 5
 
 while True:
     r_list, w_list, x_list = select.select([server_socket] + list(open_client_sockets.keys()), [server_socket] + list(open_client_sockets.keys()), [])
@@ -62,23 +67,26 @@ while True:
                 elif data[0] == "G":
                     player = Player.deserialize_player(player_list[data[1:]])
                     hit = server_objects.line_world_intersection(player.position, player.looking_vector(), data[1:])
-                    if hit:
+                    if hit and (hit not in death_times or time() - death_times[hit] > RESPAWN_TIME):
                         print("hit")
                         player.move_to(x=randint(-10, 10), z=randint(-10, 10))
                         player_list[hit] = player.serialize()[:50]
+                        death_times[hit] = time()
                         for target_socket in w_list:
                             message_to_send.append((target_socket, player_list[hit] + hit + "P"))
                 elif data[0] == "P":
-                    if len(data) > 51:
-                        color = data[51:]
-                        # [i] position in gl cs
-                        value = data[1:51]
-                        player_list[color] = value
-                        server_objects.create_player(color, Player.deserialize_player(value).position)
-                        message = ""
-                        for key, val in player_list.items():
-                            if key != color:
-                                message += val + key + "P"
-                        message_to_send.append((curr_socket, message))
+                    update_list = data.split("P")[1:]
+                    for player_data in update_list:
+                        if len(player_data) > 50:
+                            color = player_data[50:]
+                            # [i] position in gl cs
+                            value = player_data[:50]
+                            player_list[color] = value
+                            server_objects.create_player(color, Player.deserialize_player(value).position)
+                    message = ""
+                    for key, val in player_list.items():
+                        if key != color:
+                            message += val + key + "P"
+                    message_to_send.append((curr_socket, message))
 
     send_waiting_messages(w_list, message_to_send)
