@@ -7,7 +7,7 @@ import meshRenderer
 from OpenGL.GL import *
 from OpenGL.GLU import *
 import objects
-import time
+from time import time
 import numpy as np
 from random import randint
 
@@ -50,8 +50,6 @@ pygame.mouse.set_pos(screen_center)
 
 paused = False
 run = True
-cur_time = time.time()
-prev_time = time.time()
 
 speed = [0, 0, 0]
 # global vars
@@ -60,7 +58,7 @@ SENSETIVITY = 0.1
 GRAVITY = 5
 # initialzing mouse settings
 pygame.mouse.set_pos(screen_center)
-pygame.mouse.set_visible(False)
+# pygame.mouse.set_visible(False) - in comment until crosshair is implemented
 
 # *moving to the starting position given by the server*
 # init the view matrix
@@ -85,13 +83,23 @@ viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 glPopMatrix()
 glMultMatrixf(viewMatrix)
 
+SPEED = 0.1
+
+delta_time = 1
+prev_time = time()
+
 while run:
+    delta_time = time() - prev_time 
+    
     # *updating players*
     # [i] update data in gl cs
     update_data = connection.update_data(player1)
     if update_data:
         for c, player in update_data.items():
-            objects.create_player(c, player.position)
+            if c == player1.color:
+                player1 = player
+            else:
+                objects.create_player(c, player.position)
 
     # getting actions
     for event in pygame.event.get():
@@ -109,10 +117,6 @@ while run:
         if event.type == pygame.MOUSEBUTTONDOWN:
             # [i] both in gl cs
             connection.send_shot(player1.color)
-            object_hit = line_world_intersection(player1.position, player1.looking_vector())
-            if object_hit:
-                objects.players = {key:val for key, val in objects.players.items() if val != object_hit}
-            pass
 
         if not paused:
             # getting the mosue movement
@@ -139,13 +143,13 @@ while run:
         speed = [0, speed[1], 0]
         # calculate speed
         if key_presses[pygame.K_w]:
-            speed[2] += 0.1
+            speed[2] += SPEED * delta_time
         if key_presses[pygame.K_s]:
-            speed[2] -= 0.1
+            speed[2] -= SPEED * delta_time
         if key_presses[pygame.K_d]:
-            speed[0] -= 0.1
+            speed[0] -= SPEED * delta_time
         if key_presses[pygame.K_a]:
-            speed[0] += 0.1
+            speed[0] += SPEED * delta_time
         
         
         hit_wall = world_collision_detection(np.subtract(player1.position, rotate_yaw(speed,  player1.yaw + mouse_change[0] * SENSETIVITY)))
