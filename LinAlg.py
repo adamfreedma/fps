@@ -92,7 +92,7 @@ def line_world_intersection(pos, vector):
                 min_distance = intersection
                 object_hit = obj
     
-    return object_hit
+    return np.add(pos, np.multiply(vector, 50))
 
 
 def line_plane_distance(plane, pos, vector):

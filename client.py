@@ -85,6 +85,8 @@ glMultMatrixf(viewMatrix)
 
 SPEED = 0.1
 
+shots = []
+
 delta_time = 1
 prev_time = time()
 
@@ -115,9 +117,10 @@ while run:
             if event.key == pygame.K_c:
                 objects.create_player("green", [randint(-10, 10), randint(-10, 10), 0], False)
         if event.type == pygame.MOUSEBUTTONDOWN:
-            # [i] both in gl cs
             connection.send_shot(player1.color)
-
+            # [i] both in gl cs
+            hit_pos = line_world_intersection(player1.position, player1.looking_vector())
+            shots.append((player1.position, hit_pos))
         if not paused:
             # getting the mosue movement
             if event.type == pygame.MOUSEMOTION:
@@ -125,6 +128,9 @@ while run:
             pygame.mouse.set_pos(screen_center)
 
     if not paused:
+        
+        print(player1.looking_vector())
+        
         # get key presses
         key_presses = pygame.key.get_pressed()
 
@@ -132,8 +138,8 @@ while run:
         glLoadIdentity()
         
         # apply the look up and down
-        player1.rotate(pitch=mouse_change[1] * SENSETIVITY)
-        glRotatef(player1.pitch, 1.0, 0.0, 0.0)
+        player1.rotate(pitch=-mouse_change[1] * SENSETIVITY)
+        glRotatef(-player1.pitch, 1.0, 0.0, 0.0)
         
         # init the view matrix
         glPushMatrix()
@@ -186,6 +192,10 @@ while run:
         glPushMatrix()
 
         meshRenderer.mesh_all(player1.looking_vector())
+        
+        for shot in shots:
+            meshRenderer.draw_line(np.add(convert_gl_to_object_cs(shot[0]), rotate_yaw([0,1,0], player1.yaw - 60)), convert_gl_to_object_cs(shot[1]), (1, 1, 1))
+        shots = []
 
         pygame.display.flip()
         glPopMatrix()

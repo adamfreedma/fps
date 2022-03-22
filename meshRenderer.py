@@ -30,9 +30,11 @@ def mesh(object_list, looking):
     glEnd()
 
 
-def draw_line(p1, p2, color):
+def draw_line(p1, p2, color, width=5):
+    glLineWidth(width);
     glBegin(GL_LINES)
+    print(p1, p2)
     glColor3fv(color)
-    glVertex2fv(p1)
-    glVertex2fv(p2)
+    glVertex3fv(p1)
+    glVertex3fv(p2)
     glEnd()
