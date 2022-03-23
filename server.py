@@ -5,8 +5,11 @@ import Player
 from random import randint
 from time import time
 
+
 def handle_disconnected_client(client_socket):
     if client_socket in open_client_sockets:
+        color_list[socket_colors[client_socket]] = True
+        del socket_colors[client_socket]
         print(f'{open_client_sockets[client_socket]} - disconnected')
         del open_client_sockets[client_socket]
         client_socket.close()
@@ -29,7 +32,8 @@ server_socket = socket.socket()
 server_socket.bind(('0.0.0.0', 1729))
 server_socket.listen(5)
 c = "red"
-color_list = ["black", "green", "red", "blue"]
+socket_colors = {}
+color_list = {"green": True, "red": True, "blue": True}
 player_list = {}
 # saving death times to stop killing respawning people
 death_times = {}
@@ -60,9 +64,15 @@ while True:
                 handle_disconnected_client(curr_socket)
             else:
                 if data == "J":
-                    # TODO: change to actual values
+                    c = ""
+                    for color, available in color_list.items():
+                        if available:
+                            c = color
+                            color_list[color] = False
+                            socket_colors[curr_socket] = c
+                            break
+                    # TODO: change to actual values and reject players when full
                     message = "S" + "2".zfill(30) + c
-                    c = "green"
                     message_to_send.append((curr_socket, message))
                 elif data[0] == "G":
                     player = Player.deserialize_player(player_list[data[1:]])
