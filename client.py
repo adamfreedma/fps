@@ -149,6 +149,7 @@ while run:
 
         # *updating players*
         # [i] update data in gl cs
+        objects.players = {}
         update_data = connection.update_data(player1)
         if update_data:
             for c, player in update_data.items():

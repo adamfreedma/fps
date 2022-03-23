@@ -9,6 +9,7 @@ from time import time
 def handle_disconnected_client(client_socket):
     if client_socket in open_client_sockets:
         color_list[socket_colors[client_socket]] = True
+        del player_list[socket_colors[client_socket]]
         del socket_colors[client_socket]
         print(f'{open_client_sockets[client_socket]} - disconnected')
         del open_client_sockets[client_socket]
