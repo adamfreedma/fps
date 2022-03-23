@@ -12,7 +12,7 @@ import numpy as np
 from random import randint
 
 # making a connection with the server
-connection = Connection("127.0.0.1", 1729)
+connection = Connection("192.168.4.92", 1729)
 # initialzing pygame to use opengl
 pygame.init()
 display = (1000, 1000)
@@ -83,7 +83,7 @@ viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 glPopMatrix()
 glMultMatrixf(viewMatrix)
 
-SPEED = 0.1
+SPEED = 10
 
 shots = []
 
@@ -92,16 +92,8 @@ prev_time = time()
 
 while run:
     delta_time = time() - prev_time 
-    
-    # *updating players*
-    # [i] update data in gl cs
-    update_data = connection.update_data(player1)
-    if update_data:
-        for c, player in update_data.items():
-            if c == player1.color:
-                player1 = player
-            else:
-                objects.create_player(c, player.position)
+    prev_time = time()
+
 
     # getting actions
     for event in pygame.event.get():
@@ -128,9 +120,7 @@ while run:
             pygame.mouse.set_pos(screen_center)
 
     if not paused:
-        
-        print(player1.looking_vector())
-        
+        print(player1.color)
         # get key presses
         key_presses = pygame.key.get_pressed()
 
@@ -156,7 +146,19 @@ while run:
             speed[0] -= SPEED * delta_time
         if key_presses[pygame.K_a]:
             speed[0] += SPEED * delta_time
-        
+
+        # *updating players*
+        # [i] update data in gl cs
+        update_data = connection.update_data(player1)
+        if update_data:
+            for c, player in update_data.items():
+                if c == player1.color:
+                    movement = np.subtract(player.position, player1.position)
+                    player1.move(movement)
+                    movement = rotate_yaw(movement, -player1.yaw)
+                    glTranslatef(*movement)
+                else:
+                    objects.create_player(c, player.position)
         
         hit_wall = world_collision_detection(np.subtract(player1.position, rotate_yaw(speed,  player1.yaw + mouse_change[0] * SENSETIVITY)))
         if not hit_wall:
