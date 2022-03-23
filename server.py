@@ -32,7 +32,8 @@ def send_waiting_messages(wlist, messages):
 server_socket = socket.socket()
 server_socket.bind(('0.0.0.0', 1729))
 server_socket.listen(5)
-c = "red"
+
+points = {}
 socket_colors = {}
 color_list = {"green": True, "red": True, "blue": True}
 player_list = {}
@@ -83,8 +84,11 @@ while True:
                         player.move_to(x=randint(-10, 10), z=randint(-10, 10))
                         player_list[hit] = player.serialize()[:50]
                         death_times[hit] = time()
+                        points[socket_colors[curr_socket]] += 1
                         for target_socket in w_list:
                             message_to_send.append((target_socket, player_list[hit] + hit + "P"))
+
+                        # TODO: send players score at the end
                 elif data[0] == "P":
                     update_list = data.split("P")[1:]
                     for player_data in update_list:
@@ -93,6 +97,7 @@ while True:
                             # [i] position in gl cs
                             value = player_data[:50]
                             player_list[color] = value
+                            points[color] = 0
                             server_objects.create_player(color, Player.deserialize_player(value).position)
                     message = ""
                     for key, val in player_list.items():
