@@ -13,10 +13,10 @@ from random import randint
 
 def game():
     # making a connection with the server
-    connection = Connection("192.168.4.92", 1729)
+    connection = Connection("127.0.0.1", 1729)
     # initialzing pygame to use opengl
     pygame.init()
-    display = (1600, 1024)
+    display = (1280, 960)
     screen = pygame.display.set_mode(display, DOUBLEBUF | OPENGL)
 
     # enables depth testing (making sure closer object are in the front of the screen)
@@ -51,6 +51,7 @@ def game():
 
     paused = False
     run = True
+    game_done = False
 
     speed = [0, 0, 0]
     # global vars
@@ -91,7 +92,9 @@ def game():
     delta_time = 1
     prev_time = time()
 
-    while run:
+    update_data = []
+
+    while run and not game_done:
         delta_time = time() - prev_time
         prev_time = time()
 
@@ -151,7 +154,7 @@ def game():
             # *updating players*
             # [i] update data in gl cs
             objects.players = {}
-            update_data = connection.update_data(player1)
+            game_done, update_data = connection.update_data(player1)
             if update_data:
                 for c, player in update_data.items():
                     if c == player1.color:
@@ -205,37 +208,50 @@ def game():
             glPopMatrix()
     pygame.quit()
 
+    if game_done:
+        display_results(update_data, screen)
+
+
+def display_results(update_data, screen):
+
+
 def instructions(screen):
     instructions_screen = pygame.image.load("instructions.png").convert_alpha()
     screen.blit(instructions_screen, (0, 0))
     pygame.display.flip()
     # exit when esc is pressed
-    while True:
+    inInstructions = True
+    while inInstructions:
+        mouse_pos = pygame.mouse.get_pos()
+        if (pygame.mouse.get_pressed()[0] and 120 < mouse_pos[0] < 360 and 60 < mouse_pos[1] < 120):
+            inInstructions = False
         for event in pygame.event.get():
-            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-                break
+            if (event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE)):
+                inInstructions = False
     start_screen = pygame.image.load("screen.png").convert_alpha()
     screen.blit(start_screen, (0, 0))
     pygame.display.flip()
 
 
 def main():
-    screen = pygame.display.set_mode([1600, 1024])
+    screen = pygame.display.set_mode([1280, 960])
     start_screen = pygame.image.load("screen.png").convert_alpha()
     screen.blit(start_screen, (0, 0))
     pygame.display.flip()
-    waiting = True
-    while waiting:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT or (pygame.mouse.get_pressed()[0] and 610 < mouse_pos[0] < 920 and 710 < mouse_pos[1] < 820):
+    readyToPlay = False
+    while not readyToPlay:
+        mouse_pos = pygame.mouse.get_pos()
+        if pygame.mouse.get_pressed()[0]:
+            if 560 < mouse_pos[0] < 720 and 390 < mouse_pos[1] < 440:
+                readyToPlay = True
+            if 430 < mouse_pos[0] < 830 and 550 < mouse_pos[1] < 600:
+                instructions(screen)
+            if pygame.mouse.get_pressed()[0] and 580 < mouse_pos[0] < 710 and 710 < mouse_pos[1] < 770:
                 exit()
-            mouse_pos = pygame.mouse.get_pos()
-            print(mouse_pos)
-            if pygame.mouse.get_pressed()[0]:
-                if 600 < mouse_pos[0] < 930 and 140 < mouse_pos[1] < 250:
-                    waiting = False
-                if 510 < mouse_pos[0] < 1010 and 450 < mouse_pos[1] < 500:
-                    instructions(screen)
+        for event in pygame.event.get():
+            if (event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE)):
+                exit()
+    print("play")
     pygame.quit()
     game()
     main()
