@@ -37,14 +37,18 @@ class Connection:
             self.client_socket.send(("P" + player.serialize()).encode())
             # getting other players updated data
             update_data = self.client_socket.recv(1024).decode()
-            # turning it into a list of players
-            update_list = {}
-            for player in update_data.split("P")[:-1]:
-                p = deserialize_player(player)
-                if p:
-                    update_list[p.color] = p
-            return update_list
+            if update_data.count("F") > 0:
+                results = update_data.split("F")[1:]
+                return True, results
+            else:
+                # turning it into a list of players
+                update_list = {}
+                for player in update_data.split("P")[:-1]:
+                    p = deserialize_player(player)
+                    if p:
+                        update_list[p.color] = p
+                return False, update_list
         except socket.error:
-            return None
+            return None, None
             # exit("server offline, updates")
 

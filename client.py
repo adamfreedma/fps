@@ -212,7 +212,8 @@ def game():
         display_results(update_data, screen)
 
 
-def display_results(update_data, screen):
+# def display_results(update_data, screen):
+#     screen
 
 
 def instructions(screen):
