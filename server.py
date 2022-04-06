@@ -96,7 +96,7 @@ class Game:
                                     self.color_list[color] = False
                                     self.socket_colors[curr_socket] = c
                                     break
-                            # TODO: change to actual values and reject players when full
+                            # TODO: generate random starting position
                             message = "S" + "2".zfill(30) + c
                             self.message_to_send.append((curr_socket, message))
                         elif data[0] == "G":
