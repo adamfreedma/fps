@@ -36,7 +36,6 @@ def game():
     glMatrixMode(GL_PROJECTION)
     gluPerspective(45, (display[0] / display[1]), 0.1, 150.0)
 
-    # TODO: change camera and player initialazing to using server given position
     glMatrixMode(GL_MODELVIEW)
     # [i] object cs
     gluLookAt(0, -1e-10, 0, 0, 0, 0, 0, 0, 1)
@@ -179,12 +178,10 @@ def game():
                 speed = rotate_yaw(speed, player1.yaw)
                 player1.move(speed)
 
-            # ! delete later
-            # objects.world[0].move([0.1, 0 ,0])
 
             # moves the matrix
             glMultMatrixf(viewMatrix)
-            # store the new matrixc
+            # store the new matrix
             viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 
             # apply view matrix
@@ -212,8 +209,8 @@ def game():
         display_results(update_data, screen)
 
 
-# def display_results(update_data, screen):
-#     screen
+def display_results(update_data, screen):
+    screen
 
 
 def instructions(screen):
