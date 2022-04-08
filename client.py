@@ -203,16 +203,21 @@ def game():
     pygame.quit()
 
     if game_done:
-        display_results(update_data)
+        display_results(update_data, player1.color)
 
 
-def display_results(results):
+def display_results(results, you_color):
     screen = pygame.display.set_mode([1280, 960])
 
     x = 1280 // 2
     y = 100
     for player, points in results.items():
-        text = Text(player + ": " + points, (x, y), [255 * color for color in objects.colors[player]])
+        txt = ""
+        if player == you_color:
+            txt = "you" + ": " + points
+        else:
+            txt = player + ": " + points
+        text = Text(txt, (x, y), [255 * color for color in objects.colors[player]])
         print(text.text)
         text.write(screen)
         y += 100
