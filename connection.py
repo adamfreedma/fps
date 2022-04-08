@@ -1,5 +1,5 @@
 import socket
-from Player import Player, deserialize_new_player, deserialize_player
+from Player import deserialize_new_player, deserialize_player
 
 
 class Connection:
@@ -28,7 +28,10 @@ class Connection:
             exit("server offline, connect")
 
     def send_shot(self, color):
-        self.client_socket.send(("G" + color).encode())
+        try:
+            self.client_socket.send(("G" + color).encode())
+        except socket.error as e:
+            print(e)
 
     def update_data(self, player):
         try:
@@ -38,7 +41,9 @@ class Connection:
             # getting other players updated data
             update_data = self.client_socket.recv(1024).decode()
             if update_data.count("F") > 0:
-                results = update_data.split("F")[1:]
+                results = {}
+                for player_points in update_data.split("F")[1:]:
+                    results[player_points[:-1]] = player_points[-1:]
                 return True, results
             else:
                 # turning it into a list of players
