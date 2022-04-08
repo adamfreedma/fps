@@ -10,6 +10,7 @@ import objects
 from time import time
 import numpy as np
 from random import randint
+from text import Text
 
 def game():
     # making a connection with the server
@@ -53,10 +54,6 @@ def game():
     game_done = False
 
     speed = [0, 0, 0]
-    # global vars
-    PLAYER_RADIUS = 0.2
-    SENSETIVITY = 0.1
-    GRAVITY = 5
     # initialzing mouse settings
     pygame.mouse.set_pos(screen_center)
     # pygame.mouse.set_visible(False) - in comment until crosshair is implemented
@@ -84,6 +81,8 @@ def game():
     glPopMatrix()
     glMultMatrixf(viewMatrix)
 
+    # global vars
+    SENSETIVITY = 0.1
     SPEED = 10
 
     shots = []
@@ -109,8 +108,6 @@ def game():
                 if event.key == pygame.K_PAUSE or event.key == pygame.K_p:
                     paused = not paused
                     pygame.mouse.set_pos(screen_center)
-                if event.key == pygame.K_c:
-                    objects.create_player("green", [randint(-10, 10), randint(-10, 10), 0], False)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 connection.send_shot(player1.color)
                 # [i] both in gl cs
@@ -123,7 +120,6 @@ def game():
                 pygame.mouse.set_pos(screen_center)
 
         if not paused:
-            print(player1.color)
             # get key presses
             key_presses = pygame.key.get_pressed()
 
@@ -154,7 +150,7 @@ def game():
             # [i] update data in gl cs
             objects.players = {}
             game_done, update_data = connection.update_data(player1)
-            if update_data:
+            if update_data and not game_done:
                 for c, player in update_data.items():
                     if c == player1.color:
                         movement = np.subtract(player.position, player1.position)
@@ -203,14 +199,30 @@ def game():
 
             pygame.display.flip()
             glPopMatrix()
+    
     pygame.quit()
 
     if game_done:
-        display_results(update_data, screen)
+        display_results(update_data)
 
 
-def display_results(update_data, screen):
-    screen
+def display_results(results):
+    screen = pygame.display.set_mode([1280, 960])
+
+    x = 1280 // 2
+    y = 100
+    for player, points in results.items():
+        text = Text(player + ": " + points, (x, y), [255 * color for color in objects.colors[player]])
+        print(text.text)
+        text.write(screen)
+        y += 100
+    pygame.display.flip()
+
+    while True:
+        event = pygame.event.wait()
+        if event.type == QUIT or event.type == KEYDOWN:
+            break
+
 
 
 def instructions(screen):
@@ -249,7 +261,6 @@ def main():
         for event in pygame.event.get():
             if (event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE)):
                 exit()
-    print("play")
     pygame.quit()
     game()
     main()
