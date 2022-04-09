@@ -194,7 +194,7 @@ def game():
             meshRenderer.mesh_all(player1.looking_vector())
 
             for shot in shots:
-                meshRenderer.draw_line(np.add(convert_gl_to_object_cs(shot[0]), rotate_yaw([0,1,0], player1.yaw - 60)), convert_gl_to_object_cs(shot[1]), (1, 1, 1))
+                meshRenderer.draw_line(np.add(convert_gl_to_object_cs(shot[0]), convert_gl_to_object_cs(rotate_yaw([-1,0,0], player1.yaw + 60))), convert_gl_to_object_cs(shot[1]), (1, 1, 0))
             shots = []
 
             pygame.display.flip()
