@@ -160,7 +160,8 @@ def game():
                     else:
                         objects.create_player(c, player.position)
 
-            hit_wall = world_collision_detection(np.subtract(player1.position, rotate_yaw(speed,  player1.yaw + mouse_change[0] * SENSETIVITY)))
+            # *checking for wall hits*
+            hit_wall = world_collision_detection(np.add(player1.position, rotate_yaw(speed,  player1.yaw + mouse_change[0] * SENSETIVITY)))
             if not hit_wall:
                 # * apply the movement *
                 glTranslatef(*speed)
