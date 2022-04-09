@@ -1,6 +1,4 @@
 from math import *
-from turtle import distance
-from xml.sax.handler import property_interning_dict
 import numpy as np
 import objects
 
@@ -19,7 +17,7 @@ def world_collision_detection(new_pos):
 
 
 def AABB_collison(new_pos, object):
-    object = np.array([convert_object_to_gl_cs(vertice) for vertice in object.verticies])
+    object = np.array([convert_object_to_gl_cs(vertex) for vertex in object.vertices])
     box = [[x - PLAYER_RADIUS for x in object.min(0)], [x + PLAYER_RADIUS for x in object.max(0)]]
     return box[0][0] < new_pos[0] < box[1][0] and box[0][1] < new_pos[1] < box[1][1] and box[0][2] < new_pos[2] < box[1][2]
 
@@ -61,13 +59,12 @@ def normalize(vector):
     vector = [x / vector_norm for x in vector]
     return vector
 
-
 def line_world_intersection(pos, vector):
     """checks the intersection of a bullet with the world
 
     Args:
-        pos (list of 3 - gl cs): _description_
-        vector (list of 3 - gl cs): _description_
+        pos (list of 3 - gl cs): starting position of the shooter
+        vector (list of 3 - gl cs): bullet direction vector
 
     Returns:
         float: distance from target
@@ -75,11 +72,11 @@ def line_world_intersection(pos, vector):
     # [i] pos and vector in gl cs
     min_distance = np.Inf
     object_hit = None
-    for obj in objects.players:
+    for obj in objects.players.values():
         # [i] obj in object cs
         for face in obj.faces:
             # [i] plane converted to gl cs
-            plane = [convert_object_to_gl_cs(obj.verticies[index]) for index in face]
+            plane = [convert_object_to_gl_cs(obj.vertices[index]) for index in face]
             intersection = line_plane_distance(plane, pos ,vector)
             if intersection > 0 and intersection < min_distance:
                 min_distance = intersection
@@ -89,13 +86,13 @@ def line_world_intersection(pos, vector):
         # [i] obj in object cs
         for face in obj.faces:
             # [i] plane converted to gl cs
-            plane = [convert_object_to_gl_cs(obj.verticies[index]) for index in face]
+            plane = [convert_object_to_gl_cs(obj.vertices[index]) for index in face]
             intersection = line_plane_distance(plane, pos ,vector)
             if intersection > 0 and intersection < min_distance:
                 min_distance = intersection
                 object_hit = obj
     
-    return object_hit
+    return np.add(pos, np.multiply(vector, 50))
 
 
 def line_plane_distance(plane, pos, vector):
@@ -135,6 +132,18 @@ def convert_object_to_gl_cs(vector):
         list of 3 - gl cs: list in gl cs
     """
     return [-vector[1],vector[2],-vector[0]]
+
+
+def convert_gl_to_object_cs(vector):
+    """converts a list in gl cs to object cs
+
+    Args:
+        vector (list of 3 - gl cs): input vector in gl cs
+
+    Returns:
+        list of 3 - object cs: list in object cs
+    """
+    return [-vector[2],-vector[0],vector[1]]
 
 
 def point_in_plane_section(plane, point):
@@ -203,10 +212,14 @@ def vector_from_yaw_pitch(yaw, pitch, size=1, is_degrees=True):
 
 
 def main():
-    plane = [[-1,1,0], [1,1,0], [1,-1,0], [-1,-1,0]]
-    pos = [-.9, .9, 1]
-    vector = [0, 0.09, -1]
-    print("line plane intersection:", line_plane_distance(plane, pos, vector))
+    # plane = [[-1,1,0], [1,1,0], [1,-1,0], [-1,-1,0]]
+    # pos = [-.9, .9, 1]
+    # vector = [0, 0.09, -1]
+    # print("line plane intersection:", line_plane_distance(plane, pos, vector))
+    vector = [1,2,3]
+    vector = convert_gl_to_object_cs(vector)
+    vector = convert_object_to_gl_cs(vector)
+    print(vector)
 
 
 if __name__ == '__main__':
