@@ -1,3 +1,5 @@
+from ast import walk
+from tracemalloc import stop
 from turtle import Screen
 import pygame
 from pygame.locals import *
@@ -96,7 +98,6 @@ def game() -> None:
     update_data = []
 
     walk_sound = pygame.mixer.Sound("steps.wav")
-    playing_walk = False
 
     while run and not game_done:
         delta_time = time() - prev_time
@@ -156,12 +157,10 @@ def game() -> None:
             if key_presses[pygame.K_a]:
                 speed[0] += SPEED * delta_time
                 
-            if not playing_walk and norm(speed) > 0:
-                walk_sound.play()
-                playing_walk = True
-            if playing_walk and norm(speed) == 0:
-                walk_sound.stop()
-                playing_walk = False                
+            if norm(speed) > 0 and not hit_wall:
+                pygame.mixer.Sound.play(walk_sound)
+            else:
+                pygame.mixer.Sound.stop(walk_sound)    
 
             # *updating players*
             # [i] update data in gl cs
