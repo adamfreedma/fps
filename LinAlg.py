@@ -2,13 +2,22 @@ from math import *
 import numpy as np
 import objects
 
-PLAYER_RADIUS = 0.2
+PLAYER_RADIUS = 0.5
 
 # [i] planes needs to be defined in a clockwise/counter-clockwise order (vertices with consequitive indexes must be adjacent)
 # [i] right handed coordinate system (x-right, y-up, z-back)
 
-def world_collision_detection(new_pos):
+def world_collision_detection(new_pos) -> bool:
+    """checks if the player hit a wall
+
+    Args:
+        new_pos (list of 3): the players position after his movement
+
+    Returns:
+        bool: did the player colide with a wall
+    """
     collision = False
+    # checking for collision with each object
     for object in objects.world:
         if AABB_collison(new_pos, object):
             collision = True
@@ -16,12 +25,24 @@ def world_collision_detection(new_pos):
     return collision
 
 
-def AABB_collison(new_pos, object):
-    object = np.array([convert_object_to_gl_cs(vertex) for vertex in object.vertices])
-    box = [[x - PLAYER_RADIUS for x in object.min(0)], [x + PLAYER_RADIUS for x in object.max(0)]]
+def AABB_collison(new_pos, object : objects.Object) -> bool:
+    """check for a collision with an object using AABB(axis-aligned bounding box)
+
+    Args:
+        new_pos (list of 3): the players position after his movement
+        object (Object): the object to check collision with
+
+    Returns:
+        bool: did the player collide with the object
+    """
+    # [i] obj converted to gl cs
+    obj = np.array([convert_object_to_gl_cs(vertex) for vertex in object.vertices])
+    # creating a bounding box using the players radius
+    box = [[x - PLAYER_RADIUS for x in obj.min(0)], [x + PLAYER_RADIUS for x in obj.max(0)]]
+    # checking the collision
     return box[0][0] < new_pos[0] < box[1][0] and box[0][1] < new_pos[1] < box[1][1] and box[0][2] < new_pos[2] < box[1][2]
 
-def plane_normal(plane):
+def plane_normal(plane) -> list:
     """finds the normal of the plane
 
     Args:
@@ -34,7 +55,7 @@ def plane_normal(plane):
     return [-x for x in normalize(normal_vector)]
 
 
-def norm(vector):
+def norm(vector) -> float:
     """finds the norm(vector) of the vector
 
     Args:
@@ -46,7 +67,7 @@ def norm(vector):
     return sqrt(sum(x ** 2 for x in vector))
 
 
-def normalize(vector):
+def normalize(vector) -> list:
     """finds the unit vector of the given vector
 
     Args:
@@ -59,7 +80,7 @@ def normalize(vector):
     vector = [x / vector_norm for x in vector]
     return vector
 
-def line_world_intersection(pos, vector):
+def line_world_intersection(pos, vector) -> float:
     """checks the intersection of a bullet with the world
 
     Args:
@@ -71,32 +92,35 @@ def line_world_intersection(pos, vector):
     """
     # [i] pos and vector in gl cs
     min_distance = np.Inf
-    object_hit = None
+    # checking for each face in each object
     for obj in objects.players.values():
         # [i] obj in object cs
         for face in obj.faces:
             # [i] plane converted to gl cs
             plane = [convert_object_to_gl_cs(obj.vertices[index]) for index in face]
+            # calculating the intersection
             intersection = line_plane_distance(plane, pos ,vector)
+            # updating the distance if its the new closest hit
             if intersection > 0 and intersection < min_distance:
                 min_distance = intersection
-                object_hit = obj
-
+    
+    # checking for each face in each object
     for obj in objects.world:
         # [i] obj in object cs
         for face in obj.faces:
             # [i] plane converted to gl cs
             plane = [convert_object_to_gl_cs(obj.vertices[index]) for index in face]
+            # calculating the intersection
             intersection = line_plane_distance(plane, pos ,vector)
+            # updating the distance if its the new closest hit
             if intersection > 0 and intersection < min_distance:
                 min_distance = intersection
-                object_hit = obj
     
     return np.add(pos, np.multiply(vector, 50))
 
 
-def line_plane_distance(plane, pos, vector):
-    """returns  the factor needed for the vector to hit the plane(0-1 direct hit, 1- INF will eventually hit(bullet hit))
+def line_plane_distance(plane, pos, vector) -> float:
+    """returns  the factor needed for the vector to hit the plane(0-1 direct hit, 1 - INF will eventually hit(bullet hit))
 
     Args:
         plane (list of 4 vertices(list of 3) - gl cs): the plane to find intersection
@@ -122,7 +146,7 @@ def line_plane_distance(plane, pos, vector):
     return distance
 
 
-def convert_object_to_gl_cs(vector):
+def convert_object_to_gl_cs(vector) -> list:
     """converts a list in object cs to gl cs
 
     Args:
@@ -134,7 +158,7 @@ def convert_object_to_gl_cs(vector):
     return [-vector[1],vector[2],-vector[0]]
 
 
-def convert_gl_to_object_cs(vector):
+def convert_gl_to_object_cs(vector) -> list:
     """converts a list in gl cs to object cs
 
     Args:
@@ -146,7 +170,7 @@ def convert_gl_to_object_cs(vector):
     return [-vector[2],-vector[0],vector[1]]
 
 
-def point_in_plane_section(plane, point):
+def point_in_plane_section(plane, point) -> bool:
     """checks if a point is within a rectangle region of a plane
 
     Args:
@@ -170,7 +194,7 @@ def point_in_plane_section(plane, point):
     return 0 < acos(np.dot(p2_to_point, right)) < pi/2 and 0 < acos(np.dot(p0_to_point, left)) < pi/2  and 0 < acos(np.dot(p1_to_point, top)) < pi/2 and 0 < acos(np.dot(p3_to_point, bottom)) < pi/2
 
 
-def rotate_yaw(vector, yaw, is_degrees=True):
+def rotate_yaw(vector, yaw, is_degrees=True) -> list:
     """rotates the vector around the y axis (left / right)
 
     Args:
@@ -189,7 +213,7 @@ def rotate_yaw(vector, yaw, is_degrees=True):
     return np.dot(vector, yaw_rotation_matrix)
 
 
-def vector_from_yaw_pitch(yaw, pitch, size=1, is_degrees=True):
+def vector_from_yaw_pitch(yaw, pitch, size=1, is_degrees=True) -> list:
     """generates a vector from its yaw and its relative pitch
 
     Args:
@@ -212,10 +236,7 @@ def vector_from_yaw_pitch(yaw, pitch, size=1, is_degrees=True):
 
 
 def main():
-    # plane = [[-1,1,0], [1,1,0], [1,-1,0], [-1,-1,0]]
-    # pos = [-.9, .9, 1]
-    # vector = [0, 0.09, -1]
-    # print("line plane intersection:", line_plane_distance(plane, pos, vector))
+    # example
     vector = [1,2,3]
     vector = convert_gl_to_object_cs(vector)
     vector = convert_object_to_gl_cs(vector)

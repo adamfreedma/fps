@@ -10,11 +10,16 @@ class Player:
         self.pitch = pitch
 
 
-    def looking_vector(self):
+    def looking_vector(self) -> list:
+        """generates the vector of the players looking direction
+
+        Returns:
+            list: the looking vector
+        """
         return vector_from_yaw_pitch(self.yaw, self.pitch)
     
 
-    def move_to(self, x=None, y=None, z=None):
+    def move_to(self, x=None, y=None, z=None) -> None:
         """moves the Player
 
         Args:
@@ -30,22 +35,46 @@ class Player:
             self.position[2] = z
 
 
-    def move(self, speed):
+    def move(self, speed) -> None:
+        """moves the player (not relative to its yaw)
+
+        Args:
+            speed (list of 3): the vector to move
+        """
         self.position = np.add(self.position, speed)
 
 
-    def rotate(self, yaw=None, pitch=None):
+    def rotate(self, yaw=None, pitch=None) -> None:
+        """adds the yaw/pitch
+
+        Args:
+            yaw (float, optional): yaw to add. Defaults to None.
+            pitch (float, optional): pitch to add. Defaults to None.
+        """
         if yaw:
             self.yaw += yaw
         if pitch:
             self.pitch += pitch
 
-    def serialize(self):
-        return serialize_var(self.position[0], 10) + serialize_var(self.position[1], 10) + serialize_var(self.position[2], 10)\
-               + serialize_var(self.yaw, 10) + serialize_var(self.pitch, 10) + self.color
+    def serialize(self) -> str:
+        """serializes the player
+
+        Returns:
+            str: the serialized player
+        """
+        return serialize_field(self.position[0], 10) + serialize_field(self.position[1], 10) + serialize_field(self.position[2], 10)\
+               + serialize_field(self.yaw, 10) + serialize_field(self.pitch, 10) + self.color
 
 
-def deserialize_player(serialized):
+def deserialize_player(serialized) -> Player:
+    """ deserializes a player
+
+    Args:
+        serialized (str): the serialized player
+
+    Returns:
+        Player: the player
+    """
     length = 10
     try:
         return Player(serialized[5*length:], [float(serialized[:length]), float(serialized[length:2*length]), float(serialized[2*length:3*length])]
@@ -54,7 +83,15 @@ def deserialize_player(serialized):
         print(e)
         print("invlaid input!, player")
 
-def deserialize_new_player(serialized):
+def deserialize_new_player(serialized) -> Player:
+    """desirilizes the starting player from the server connection
+
+    Args:
+        serialized (str): the starting player serialized
+
+    Returns:
+        Player: starting player
+    """
     try:
         length = 10
         return Player(serialized[3*length:], [float(serialized[:length]), float(serialized[length:2*length]), float(serialized[2*length:3*length])])
@@ -62,5 +99,14 @@ def deserialize_new_player(serialized):
         print(e)
         print("invalid input!, new player")
 
-def serialize_var(var, length):
-    return str(var).zfill(length)[:length]
+def serialize_field(field, length) -> str:
+    """serializes a field
+
+    Args:
+        field (any): the value to serialize
+        length (int): the wanted length for the field
+
+    Returns:
+        str: _description_
+    """
+    return str(field).zfill(length)[:length]

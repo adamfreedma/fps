@@ -12,7 +12,12 @@ class Object:
         self.edges = edges
         self.color = color
 
-    def move(self, vector):
+    def move(self, vector) -> None:
+        """moves the object
+
+        Args:
+            vector (list of 3): the vector to add to the objects position
+        """
         self.vertices = [np.add(vertex, vector) for vertex in self.verticies]
 
 
@@ -130,7 +135,14 @@ world = [Object(cube_faces_vector4, cube_vertices_vector3, cube_edges_vector2),
          Object(floor_faces_vector4, floor_vertices_vector3, floor_edges_vector2, [0.3, 0.3, 0.3])]
 
 
-def create_player(color, position, is_gl_cs=True):
+def create_player(color, position, is_gl_cs=True) -> None:
+    """adds a player to the player object list
+
+    Args:
+        color (str): player color
+        position (list of 3): player position
+        is_gl_cs (bool, optional): is the position in gl cs. Defaults to True.
+    """
     try:
         if is_gl_cs:
             position = LinAlg.convert_gl_to_object_cs(position)
@@ -142,7 +154,7 @@ def create_player(color, position, is_gl_cs=True):
     except Exception as e:
         print(color, position, "create player")
 
-def line_world_intersection(pos, vector, color):
+def line_world_intersection(pos, vector, color) -> float:
     """checks the intersection of a bullet with the world
 
     Args:
@@ -155,17 +167,21 @@ def line_world_intersection(pos, vector, color):
     # [i] pos and vector in gl cs
     min_distance = np.Inf
     object_hit = None
+    # testing for each face for each object
     for obj in players.values():
         if colors[color] != obj.color:
             # [i] obj in object cs
             for face in obj.faces:
                 # [i] plane converted to gl cs
                 plane = [LinAlg.convert_object_to_gl_cs(obj.vertices[index]) for index in face]
+                # calculating intersection
                 intersection = LinAlg.line_plane_distance(plane, pos, vector)
+                # reassigning the object hit if its the closest one and its hit
                 if intersection > 0 and intersection < min_distance:
                     min_distance = intersection
                     object_hit = obj
     object_color = None
+    # returning the color of the player hit
     if object_hit:
         object_color = [key for key, val in colors.items() if  val == object_hit.color][0]
     return object_color

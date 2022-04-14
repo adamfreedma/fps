@@ -331,7 +331,14 @@ world = [Object(faces_vector4, a1_vertices_vector3, edges_vector2, gray),
 ]
 
 
-def create_player(color, position, is_gl_cs=True):
+def create_player(color, position, is_gl_cs=True) -> None:
+    """adds a player to the player object list
+
+    Args:
+        color (str): player color
+        position (list of 3): player position
+        is_gl_cs (bool, optional): is the position in gl cs. Defaults to True.
+    """
     if is_gl_cs:
         position = LinAlg.convert_gl_to_object_cs(position)
 
