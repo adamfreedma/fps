@@ -53,9 +53,8 @@ def draw_line(p1, p2, color, width=5) -> None:
         color (list of 3): the color of the line
         width (int, optional): draws a line between point a to b. Defaults to 5.
     """
-    glLineWidth(width);
+    glLineWidth(width)
     glBegin(GL_LINES)
-    print(p1, p2)
     glColor3fv(color)
     glVertex3fv(p1)
     glVertex3fv(p2)
