@@ -25,7 +25,9 @@ class Game:
         self.RESPAWN_TIME = 5
         self.POINTS_TO_WIN = 9
 
-    def _disconnect_all_clients(self):
+    def _disconnect_all_clients(self) -> None:
+        """disconnects akk connected client sockets
+        """
         for client_socket in self.open_client_sockets:
             client_socket.close()
         self.player_list = {}
@@ -33,7 +35,12 @@ class Game:
         self.open_client_sockets = {}
 
 
-    def _handle_disconnected_client(self, client_socket):
+    def _handle_disconnected_client(self, client_socket : socket.socket) -> None:
+        """disconnects a single socket and removes it from lists he is in
+
+        Args:
+            client_socket (socket): socket to disconnect
+        """
         if client_socket in self.open_client_sockets:
             self.color_list[self.socket_colors[client_socket]] = True
             del self.player_list[self.socket_colors[client_socket]]
@@ -43,12 +50,20 @@ class Game:
             client_socket.close()
 
 
-    def _reset_vars(self):
+    def _reset_vars(self) -> None:
+        """resets all vars that are game specific
+        """
         self.points = {}
         self.color_list = {"green": True, "red": True, "blue": True}
         self.death_times = {}
 
-    def _send_waiting_messages(self, wlist, messages):
+    def _send_waiting_messages(self, wlist, messages) -> None:
+        """sends all messages that are currently in the message queue
+
+        Args:
+            wlist (list of sockets): sockets that are ready to write to
+            messages (list of (socket, str)): messages to send
+        """
         for message in messages:
             client_socket, msg = message
             if client_socket in wlist:
@@ -60,7 +75,9 @@ class Game:
                     message_to_send_cleared = [m for m in messages if m[0] is client_socket]
                     messages = message_to_send_cleared
 
-    def play(self):
+    def play(self) -> None:
+        """main loop
+        """
         while True:
             r_list, w_list, x_list = select.select([self.server_socket] + list(self.open_client_sockets.keys()), [self.server_socket] + list(self.open_client_sockets.keys()), [])
 
@@ -96,8 +113,7 @@ class Game:
                             player = Player.deserialize_player(self.player_list[data[1:]])
                             hit = server_objects.line_world_intersection(player.position, player.looking_vector(), data[1:])
                             if hit and (hit not in self.death_times or time() - self.death_times[hit] > self.RESPAWN_TIME):
-                                print("hit")
-                                player.move_to(x=randint(-10, 10), z=randint(-10, 10))
+                                player.move_to(x=0, z=0)
                                 self.player_list[hit] = player.serialize()[:50]
                                 self.death_times[hit] = time()
                                 print(self.points[self.socket_colors[curr_socket]])
@@ -142,7 +158,9 @@ class Game:
             self._send_waiting_messages(w_list, self.message_to_send)
 
 
-def main():
+def main() -> None:
+    """ game init
+    """
     game = Game()
     game.play()
 

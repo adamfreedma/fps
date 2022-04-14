@@ -1,3 +1,4 @@
+from turtle import Screen
 import pygame
 from pygame.locals import *
 from LinAlg import *
@@ -12,7 +13,9 @@ import numpy as np
 from random import randint
 from text import Text
 
-def game():
+def game() -> None:
+    """main loop
+    """
     # making a connection with the server
     connection = Connection("127.0.0.1", 1729)
     # initialzing pygame to use opengl
@@ -92,6 +95,9 @@ def game():
 
     update_data = []
 
+    walk_sound = pygame.mixer.Sound("steps.wav")
+    playing_walk = False
+
     while run and not game_done:
         delta_time = time() - prev_time
         prev_time = time()
@@ -113,6 +119,10 @@ def game():
                 # [i] both in gl cs
                 hit_pos = line_world_intersection(player1.position, player1.looking_vector())
                 shots.append((player1.position, hit_pos))
+                
+                pygame.mixer.music.load("shot.wav")
+                pygame.mixer.music.play(0)
+                
             if not paused:
                 # getting the mosue movement
                 if event.type == pygame.MOUSEMOTION:
@@ -145,6 +155,13 @@ def game():
                 speed[0] -= SPEED * delta_time
             if key_presses[pygame.K_a]:
                 speed[0] += SPEED * delta_time
+                
+            if not playing_walk and norm(speed) > 0:
+                walk_sound.play()
+                playing_walk = True
+            if playing_walk and norm(speed) == 0:
+                walk_sound.stop()
+                playing_walk = False                
 
             # *updating players*
             # [i] update data in gl cs
@@ -193,11 +210,11 @@ def game():
             glPushMatrix()
 
             meshRenderer.mesh_all(player1.looking_vector())
-
+            # drawing shots
             for shot in shots:
                 meshRenderer.draw_line(np.add(convert_gl_to_object_cs(shot[0]), convert_gl_to_object_cs(rotate_yaw([-1,0,0], player1.yaw + 60))), convert_gl_to_object_cs(shot[1]), (1, 1, 0))
             shots = []
-
+            # updating screen
             pygame.display.flip()
             glPopMatrix()
     
@@ -207,20 +224,28 @@ def game():
         display_results(update_data, player1.color)
 
 
-def display_results(results, you_color):
+def display_results(results, you_color) -> None:
+    """makes a screen to display the results
+
+    Args:
+        results (dictionary of color -> points): the result of the games
+        you_color (string): the color of the player
+    """
     screen = pygame.display.set_mode([1280, 960])
 
     x = 1280 // 2
     y = 100
     for player, points in results.items():
         txt = ""
+        # replacing the color of the client with "you" to indicate its him
         if player == you_color:
             txt = "you" + ": " + points
         else:
             txt = player + ": " + points
+        # displaying the text
         text = Text(txt, (x, y), [255 * color for color in objects.colors[player]])
-        print(text.text)
         text.write(screen)
+        # going down a line
         y += 100
     pygame.display.flip()
 
@@ -231,7 +256,12 @@ def display_results(results, you_color):
 
 
 
-def instructions(screen):
+def instructions(screen : pygame.display) -> None:
+    """displays instructions on screen
+
+    Args:
+        screen (pygame.display): the screen of the game
+    """
     instructions_screen = pygame.image.load("instructions.png").convert_alpha()
     screen.blit(instructions_screen, (0, 0))
     pygame.display.flip()
@@ -249,7 +279,9 @@ def instructions(screen):
     pygame.display.flip()
 
 
-def main():
+def main() -> None:
+    """main loop
+    """
     screen = pygame.display.set_mode([1280, 960])
     start_screen = pygame.image.load("screen.png").convert_alpha()
     screen.blit(start_screen, (0, 0))

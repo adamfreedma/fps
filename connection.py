@@ -1,5 +1,7 @@
 import socket
-from Player import deserialize_new_player, deserialize_player
+
+from numpy import array
+from Player import Player, deserialize_new_player, deserialize_player
 
 
 class Connection:
@@ -14,7 +16,15 @@ class Connection:
         except socket.error:
             exit("server offline, init")
 
-    def connect(self):
+    def connect(self) -> Player:
+        """connects to the server
+
+        Raises:
+            socket.error: the server is offline
+
+        Returns:
+            Player: starting player (position, color)
+        """
         try:
             # send J (asking for connection)
             self.client_socket.send("J".encode())
@@ -27,13 +37,27 @@ class Connection:
         except socket.error:
             exit("server offline, connect")
 
-    def send_shot(self, color):
+    def send_shot(self, color) -> None:
+        """sends a shot to the server
+
+        Args:
+            color (your color): the color of the player
+        """
         try:
             self.client_socket.send(("G" + color).encode())
         except socket.error as e:
             print(e)
 
-    def update_data(self, player):
+    def update_data(self, player: Player) -> array:
+        """sending and recieving position updates form the server
+
+        Args:
+            player (Player): the player 
+
+        Returns:
+            bool, dictionary: true/false is the game over, a list of players with their new positions
+            / the score of each player if the game if done
+        """
         try:
             # sending our updated data
             # [i] sending and recieving in gl cs
