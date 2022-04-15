@@ -116,9 +116,7 @@ class Game:
                                 player.move_to(x=0, z=0)
                                 self.player_list[hit] = player.serialize()[:50]
                                 self.death_times[hit] = time()
-                                print(self.points[self.socket_colors[curr_socket]])
                                 self.points[self.socket_colors[curr_socket]] += 1
-                                print(self.points[self.socket_colors[curr_socket]])
                                 for target_socket in w_list:
                                     self.message_to_send.append((target_socket, self.player_list[hit] + hit + "P"))
 
