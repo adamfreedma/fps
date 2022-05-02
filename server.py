@@ -34,21 +34,22 @@ class Game:
         self.socket_colors = {}
         self.open_client_sockets = {}
 
-
     def _handle_disconnected_client(self, client_socket : socket.socket) -> None:
         """disconnects a single socket and removes it from lists he is in
 
         Args:
             client_socket (socket): socket to disconnect
         """
-        if client_socket in self.open_client_sockets:
-            self.color_list[self.socket_colors[client_socket]] = True
-            del self.player_list[self.socket_colors[client_socket]]
-            del self.socket_colors[client_socket]
-            print(f'{self.open_client_sockets[client_socket]} - disconnected')
-            del self.open_client_sockets[client_socket]
-            client_socket.close()
-
+        try:
+            if client_socket in self.open_client_sockets:
+                self.color_list[self.socket_colors[client_socket]] = True
+                del self.player_list[self.socket_colors[client_socket]]
+                del self.socket_colors[client_socket]
+                print(f'{self.open_client_sockets[client_socket]} - disconnected')
+                del self.open_client_sockets[client_socket]
+                client_socket.close()
+        except Exception as e:
+            print(e)
 
     def _reset_vars(self) -> None:
         """resets all vars that are game specific
@@ -88,16 +89,17 @@ class Game:
                     print(f'{address[0]}, connected to the server')
                     self.open_client_sockets[new_client] = address[0]
                 else:
-                    data = ""
                     try:
                         # getting input data
-                        data = curr_socket.recv(1024).decode()
+                        input_data = curr_socket.recv(1024).decode()
                     except Exception as e:
                         print(str(e))
                         self._handle_disconnected_client(curr_socket)
-                    if data == "":
+
+                    if input_data == "":
                         self._handle_disconnected_client(curr_socket)
-                    else:
+
+                    for data in input_data.split("%")[1:]:
                         if data == "J":
                             c = ""
                             for color, available in self.color_list.items():
@@ -113,7 +115,6 @@ class Game:
                             player = Player.deserialize_player(self.player_list[data[1:]])
                             hit = server_objects.line_world_intersection(player.position, player.looking_vector(), data[1:])
                             if hit and (hit not in self.death_times or time() - self.death_times[hit] > self.RESPAWN_TIME):
-                                player.move_to(x=0, z=0)
                                 self.player_list[hit] = player.serialize()[:50]
                                 self.death_times[hit] = time()
                                 self.points[self.socket_colors[curr_socket]] += 1
@@ -133,8 +134,6 @@ class Game:
                                         self.message_to_send.append((target_socket, message))
                                     self._send_waiting_messages(w_list, self.message_to_send)
                                     self._reset_vars()
-                                    
-
 
                         elif data[0] == "P":
                             update_list = data.split("P")[1:]
