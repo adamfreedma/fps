@@ -15,6 +15,7 @@ import numpy as np
 from random import randint
 from text import Text
 
+
 def game() -> None:
     """main loop
     """
@@ -45,7 +46,7 @@ def game() -> None:
     glMatrixMode(GL_MODELVIEW)
     # [i] object cs
     gluLookAt(0, -1e-10, 0, 0, 0, 0, 0, 0, 1)
-    viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
+    view_matrix = glGetFloatv(GL_MODELVIEW_MATRIX)
     glLoadIdentity()
     # [i] setting up player - gl cs
     player1 = Player("black", [1e-10, 0, 0], yaw=90)
@@ -58,7 +59,7 @@ def game() -> None:
     run = True
     game_done = False
 
-    speed = [0, 0, 0]
+    velocity = [0, 0, 0]
     # initialzing mouse settings
     pygame.mouse.set_pos(screen_center)
     # pygame.mouse.set_visible(False) - in comment until crosshair is implemented
@@ -78,21 +79,20 @@ def game() -> None:
     player1.move(starting_movement)
     player1.color = init_player.color
     # moves the matrix
-    glMultMatrixf(viewMatrix)
+    glMultMatrixf(view_matrix)
     # store the new matrixc
-    viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
+    view_matrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 
     # apply view matrix
     glPopMatrix()
-    glMultMatrixf(viewMatrix)
+    glMultMatrixf(view_matrix)
 
     # global vars
-    SENSETIVITY = 0.1
-    SPEED = 10
+    sensitivity = 0.1
+    speed = 10
 
     shots = []
 
-    delta_time = 1
     prev_time = time()
 
     update_data = []
@@ -102,7 +102,6 @@ def game() -> None:
     while run and not game_done:
         delta_time = time() - prev_time
         prev_time = time()
-
 
         # getting actions
         for event in pygame.event.get():
@@ -138,29 +137,24 @@ def game() -> None:
             glLoadIdentity()
 
             # apply the look up and down
-            player1.rotate(pitch=-mouse_change[1] * SENSETIVITY)
+            player1.rotate(pitch=-mouse_change[1] * sensitivity)
             glRotatef(-player1.pitch, 1.0, 0.0, 0.0)
 
             # init the view matrix
             glPushMatrix()
             glLoadIdentity()
 
-            # saving up/down movement as it dosent reset every frame
-            speed = [0, speed[1], 0]
+            # saving up/down movement as it dosen't reset every frame
+            velocity = [0, velocity[1], 0]
             # calculate speed
             if key_presses[pygame.K_w]:
-                speed[2] += SPEED * delta_time
+                velocity[2] += speed * delta_time
             if key_presses[pygame.K_s]:
-                speed[2] -= SPEED * delta_time
+                velocity[2] -= speed * delta_time
             if key_presses[pygame.K_d]:
-                speed[0] -= SPEED * delta_time
+                velocity[0] -= speed * delta_time
             if key_presses[pygame.K_a]:
-                speed[0] += SPEED * delta_time
-                
-            if norm(speed) > 0 and not hit_wall:
-                pygame.mixer.Sound.play(walk_sound)
-            else:
-                pygame.mixer.Sound.stop(walk_sound)    
+                velocity[0] += speed * delta_time
 
             # *updating players*
             # [i] update data in gl cs
@@ -177,29 +171,34 @@ def game() -> None:
                         objects.create_player(c, player.position)
 
             # *checking for wall hits*
-            hit_wall = world_collision_detection(np.add(player1.position, rotate_yaw(speed,  player1.yaw + mouse_change[0] * SENSETIVITY)))
+            hit_wall = world_collision_detection(np.add(player1.position, rotate_yaw(
+                velocity,  player1.yaw + mouse_change[0] * sensitivity)))
             if not hit_wall:
                 # * apply the movement *
-                glTranslatef(*speed)
+                glTranslatef(*velocity)
+
+            if norm(velocity) > 0 and not hit_wall:
+                pygame.mixer.Sound.play(walk_sound)
+            else:
+                pygame.mixer.Sound.stop(walk_sound)
 
             # apply the left and right rotation
-            player1.rotate(yaw=mouse_change[0] * SENSETIVITY)
-            glRotatef(mouse_change[0] * SENSETIVITY, 0.0, 1.0, 0.0)
+            player1.rotate(yaw=mouse_change[0] * sensitivity)
+            glRotatef(mouse_change[0] * sensitivity, 0.0, 1.0, 0.0)
 
             if not hit_wall:
                 # updating player position
-                speed = rotate_yaw(speed, player1.yaw)
-                player1.move(speed)
-
+                velocity = rotate_yaw(velocity, player1.yaw)
+                player1.move(velocity)
 
             # moves the matrix
-            glMultMatrixf(viewMatrix)
+            glMultMatrixf(view_matrix)
             # store the new matrix
-            viewMatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
+            view_matrix = glGetFloatv(GL_MODELVIEW_MATRIX)
 
             # apply view matrix
             glPopMatrix()
-            glMultMatrixf(viewMatrix)
+            glMultMatrixf(view_matrix)
             # reapply light
             glLightfv(GL_LIGHT0, GL_POSITION, [1, -1, 1, 0])
             # clearing the buffer
@@ -211,7 +210,8 @@ def game() -> None:
             meshRenderer.mesh_all(player1.looking_vector())
             # drawing shots
             for shot in shots:
-                meshRenderer.draw_line(np.add(convert_gl_to_object_cs(shot[0]), convert_gl_to_object_cs(rotate_yaw([-1,0,0], player1.yaw + 60))), convert_gl_to_object_cs(shot[1]), (1, 1, 0))
+                meshRenderer.draw_line(np.add(convert_gl_to_object_cs(shot[0]), convert_gl_to_object_cs(
+                    rotate_yaw([-1, 0, 0], player1.yaw + 60))), convert_gl_to_object_cs(shot[1]), (1, 1, 0))
             shots = []
             # updating screen
             pygame.display.flip()
@@ -235,14 +235,13 @@ def display_results(results, you_color) -> None:
     x = 1280 // 2
     y = 100
     for player, points in results.items():
-        txt = ""
         # replacing the color of the client with "you" to indicate its him
         if player == you_color:
             txt = "you" + ": " + points
         else:
             txt = player + ": " + points
         # displaying the text
-        text = Text(txt, (x, y), [255 * color for color in objects.colors[player]])
+        text = Text(txt, (x, y), [255 * player_color for player_color in objects.colors[player]])
         text.write(screen)
         # going down a line
         y += 100
@@ -254,8 +253,7 @@ def display_results(results, you_color) -> None:
             break
 
 
-
-def instructions(screen : pygame.display) -> None:
+def instructions(screen: pygame.display) -> None:
     """displays instructions on screen
 
     Args:
@@ -265,14 +263,14 @@ def instructions(screen : pygame.display) -> None:
     screen.blit(instructions_screen, (0, 0))
     pygame.display.flip()
     # exit when esc is pressed
-    inInstructions = True
-    while inInstructions:
+    in_instructions = True
+    while in_instructions:
         mouse_pos = pygame.mouse.get_pos()
-        if (pygame.mouse.get_pressed()[0] and 120 < mouse_pos[0] < 360 and 60 < mouse_pos[1] < 120):
-            inInstructions = False
+        if pygame.mouse.get_pressed()[0] and 115 < mouse_pos[0] < 360 and 60 < mouse_pos[1] < 120:
+            in_instructions = False
         for event in pygame.event.get():
-            if (event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE)):
-                inInstructions = False
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
+                in_instructions = False
     start_screen = pygame.image.load("screen.png").convert_alpha()
     screen.blit(start_screen, (0, 0))
     pygame.display.flip()
@@ -285,18 +283,18 @@ def main() -> None:
     start_screen = pygame.image.load("screen.png").convert_alpha()
     screen.blit(start_screen, (0, 0))
     pygame.display.flip()
-    readyToPlay = False
-    while not readyToPlay:
+    ready_to_play = False
+    while not ready_to_play:
         mouse_pos = pygame.mouse.get_pos()
         if pygame.mouse.get_pressed()[0]:
             if 560 < mouse_pos[0] < 720 and 390 < mouse_pos[1] < 440:
-                readyToPlay = True
+                ready_to_play = True
             if 430 < mouse_pos[0] < 830 and 550 < mouse_pos[1] < 600:
                 instructions(screen)
-            if pygame.mouse.get_pressed()[0] and 580 < mouse_pos[0] < 710 and 710 < mouse_pos[1] < 770:
+            if pygame.mouse.get_pressed()[0] and 580 < mouse_pos[0] < 715 and 710 < mouse_pos[1] < 770:
                 exit()
         for event in pygame.event.get():
-            if (event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE)):
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 exit()
     pygame.quit()
     game()
