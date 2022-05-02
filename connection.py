@@ -27,10 +27,10 @@ class Connection:
         """
         try:
             # send J (asking for connection)
-            self.client_socket.send("J".encode())
+            self.client_socket.send("%J".encode())
             # getting initial position
             init_data = self.client_socket.recv(1024).decode()
-            # rasing a socket error if its invlaid
+            # raising a socket error if its invalid
             if len(init_data) < 1 or init_data[0] != "S":
                 raise socket.error
             return deserialize_new_player(init_data[1:])
@@ -41,15 +41,15 @@ class Connection:
         """sends a shot to the server
 
         Args:
-            color (your color): the color of the player
+            color (str): the color of the player
         """
         try:
-            self.client_socket.send(("G" + color).encode())
+            self.client_socket.send(("%G" + color).encode())
         except socket.error as e:
             print(e)
 
     def update_data(self, player: Player) -> array:
-        """sending and recieving position updates form the server
+        """sending and receiving position updates form the server
 
         Args:
             player (Player): the player 
@@ -61,7 +61,7 @@ class Connection:
         try:
             # sending our updated data
             # [i] sending and recieving in gl cs
-            self.client_socket.send(("P" + player.serialize()).encode())
+            self.client_socket.send(("%P" + player.serialize()).encode())
             # getting other players updated data
             update_data = self.client_socket.recv(1024).decode()
             if update_data.count("F") > 0:
