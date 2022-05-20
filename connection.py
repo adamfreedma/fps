@@ -10,7 +10,7 @@ class Connection:
         self.SERVER_PORT = server_port
         # connecting to the server
         self.client_socket = socket.socket()
-        self.client_socket.settimeout(0.01)
+        self.client_socket.settimeout(1)
         try:
             self.client_socket.connect((self.SERVER_IP, self.SERVER_PORT))
         except socket.error:
@@ -33,6 +33,7 @@ class Connection:
             # raising a socket error if its invalid
             if len(init_data) < 1 or init_data[0] != "S":
                 raise socket.error
+            self.client_socket.settimeout(0.01)
             return deserialize_new_player(init_data[1:])
         except socket.error:
             exit("server offline, connect")
