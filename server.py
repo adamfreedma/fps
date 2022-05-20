@@ -111,7 +111,10 @@ class Game:
                             message = "S" + "2".zfill(30) + c
                             self.message_to_send.append((curr_socket, message))
                         elif data[0] == "G":
-                            player = Player.deserialize_player(self.player_list[data[1:]])
+                            try:
+                                player = Player.deserialize_player(self.player_list[data[1:]])
+                            except KeyError:
+                                print(e)
                             hit = server_objects.line_world_intersection(player.position, player.looking_vector(), data[1:])
                             if hit and (hit not in self.death_times or time() - self.death_times[hit] > self.RESPAWN_TIME):
                                 self.player_list[hit] = "".zfill(50)
