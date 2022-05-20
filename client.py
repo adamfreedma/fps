@@ -158,7 +158,6 @@ def game() -> None:
 
             # *updating players*
             # [i] update data in gl cs
-            objects.players = {}
             game_done, update_data = connection.update_data(player1)
             if update_data and not game_done:
                 for c, player in update_data.items():
