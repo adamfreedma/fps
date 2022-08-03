@@ -1,7 +1,7 @@
 from objects import *
 from OpenGL.GL import *
 import numpy as np
-from LinAlg import *
+from lin_alg import *
 from OpenGL.GLU import *
 import objects
 
