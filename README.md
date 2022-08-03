@@ -1,7 +1,5 @@
 # Online first person shooter
 
-**11th grade cyber project (2022).**
-
 online multiplayer game made in python using sockets for networking, pygame and opengl for 3D rendering.
 
 ---
