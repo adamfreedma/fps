@@ -1,6 +1,6 @@
 from copy import copy
 import numpy as np
-import LinAlg
+import lin_alg
 
 
 class Object:
@@ -340,7 +340,7 @@ def create_player(color, position, is_gl_cs=True) -> None:
         is_gl_cs (bool, optional): is the position in gl cs. Defaults to True.
     """
     if is_gl_cs:
-        position = LinAlg.convert_gl_to_object_cs(position)
+        position = lin_alg.convert_gl_to_object_cs(position)
 
     # [i] position - object cs
     players[color] = (Object(copy(player_template_faces_vector4), [np.add(vertex, position) for vertex in player_template_vertices_vector3], copy(player_template_edges_vector2), colors[color]))

@@ -1,4 +1,4 @@
-from LinAlg import vector_from_yaw_pitch
+from lin_alg import vector_from_yaw_pitch
 import numpy as np
 
 class Player:

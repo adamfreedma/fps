@@ -3,10 +3,10 @@ from tracemalloc import stop
 from turtle import Screen
 import pygame
 from pygame.locals import *
-from LinAlg import *
+from lin_alg import *
 from Player import Player
 from connection import Connection
-import meshRenderer
+import mesh_renderer
 from OpenGL.GL import *
 from OpenGL.GLU import *
 import objects
@@ -137,7 +137,9 @@ def game() -> None:
             glLoadIdentity()
 
             # apply the look up and down
-            player1.rotate(pitch=-mouse_change[1] * sensitivity)
+            if(-90 < player1.pitch - mouse_change[1] * sensitivity < 90):
+                player1.rotate(pitch=-mouse_change[1] * sensitivity)
+            
             glRotatef(-player1.pitch, 1.0, 0.0, 0.0)
 
             # init the view matrix
@@ -206,10 +208,10 @@ def game() -> None:
             # adding game elements
             glPushMatrix()
 
-            meshRenderer.mesh_all(player1.looking_vector())
+            mesh_renderer.mesh_all(player1.looking_vector())
             # drawing shots
             for shot in shots:
-                meshRenderer.draw_line(np.add(convert_gl_to_object_cs(shot[0]), convert_gl_to_object_cs(
+                mesh_renderer.draw_line(np.add(convert_gl_to_object_cs(shot[0]), convert_gl_to_object_cs(
                     rotate_yaw([-1, 0, 0], player1.yaw + 60))), convert_gl_to_object_cs(shot[1]), (1, 1, 0))
             shots = []
             # updating screen

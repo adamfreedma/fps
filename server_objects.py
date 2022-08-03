@@ -1,6 +1,6 @@
 from copy import copy
 import numpy as np
-import LinAlg
+import lin_alg
 
 
 class Object:
@@ -145,7 +145,7 @@ def create_player(color, position, is_gl_cs=True) -> None:
     """
     try:
         if is_gl_cs:
-            position = LinAlg.convert_gl_to_object_cs(position)
+            position = lin_alg.convert_gl_to_object_cs(position)
 
         # [i] position - object cs
         players[color] = (Object(copy(player_template_faces_vector4),
@@ -173,9 +173,9 @@ def line_world_intersection(pos, vector, color) -> float:
             # [i] obj in object cs
             for face in obj.faces:
                 # [i] plane converted to gl cs
-                plane = [LinAlg.convert_object_to_gl_cs(obj.vertices[index]) for index in face]
+                plane = [lin_alg.convert_object_to_gl_cs(obj.vertices[index]) for index in face]
                 # calculating intersection
-                intersection = LinAlg.line_plane_distance(plane, pos, vector)
+                intersection = lin_alg.line_plane_distance(plane, pos, vector)
                 # reassigning the object hit if its the closest one and its hit
                 if intersection > 0 and intersection < min_distance:
                     min_distance = intersection
