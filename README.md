@@ -19,7 +19,7 @@ Change 127.0.0.1 to the ip of the server.
 ## Requirements:
 You will need to install pygame, pyopengl, and numpy.
 
-you could install them using pip:
+you can install them using pip:
 ```
 pip install pygame
 pip install pyopengl
