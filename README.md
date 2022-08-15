@@ -16,8 +16,14 @@ connection = Connection("127.0.0.1", 1729)
 ````
 Change 127.0.0.1 to the ip of the server.
 
-You will also need to install pygame, pyopengl, and numpy libraries.
+## Requirements:
+You will need to install pygame, pyopengl, and numpy.
 
-
+you could install them using pip:
+```
+pip install pygame
+pip install pyopengl
+pip install numpy
+````
 
 ---
